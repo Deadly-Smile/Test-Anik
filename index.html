@@ -5,34 +5,58 @@
     <style>
         body {
             margin: 0;
-            overflow: hidden; /* Prevent scrollbars for a clean look */
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            background-color: #f0f0f0; anik-1234567890.pdf/* Light background for better visibility */
+            overflow-y: scroll; /* Allow scrolling for multiple pages */
+        }
+        #pdf-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
         }
         canvas {
-            display: block; /* Ensures the canvas fills the page cleanly */
+            margin: 10px 0; /* Add spacing between pages */
+            background: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Add subtle shadow for effect */
         }
     </style>
 </head>
 <body>
-    <canvas id="pdf-canvas"></canvas>
+    <div id="pdf-container"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script>
-        const pdfUrl = './anik-1234567890.pdf';
-        const canvas = document.getElementById('pdf-canvas');
-        const ctx = canvas.getContext('2d');
+        const pdfUrl = './anik-1234567890.pdf'; // Replace with your PDF file path
+        const pdfContainer = document.getElementById('pdf-container');
 
+        // Load the PDF document
         pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
-            pdf.getPage(1).then(page => {
-                const viewport = page.getViewport({ scale: 1 });
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
+            const renderPage = (pageNum) => {
+                pdf.getPage(pageNum).then(page => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const viewport = page.getViewport({ scale: 1.8 }); // Adjust scale for better quality
 
-                const renderContext = {
-                    canvasContext: ctx,
-                    viewport: viewport
-                };
-                page.render(renderContext);
-            });
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    pdfContainer.appendChild(canvas);
+
+                    const renderContext = {
+                        canvasContext: ctx,
+                        viewport: viewport
+                    };
+                    page.render(renderContext);
+                });
+            };
+
+            // Loop through all pages
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                renderPage(pageNum);
+            }
         });
     </script>
 </body>
